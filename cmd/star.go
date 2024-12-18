@@ -16,11 +16,11 @@ import Config "Attendance/config"
 func Start() {
 	fmt.Println("=======")
 
-	//=======初始化系统配置
-	Config.InitConfig()
-
 	//=======初始化日志组件
 	Global.Logger = Config.InitLogger()
+
+	//=======初始化系统配置
+	Config.InitConfig()
 
 	//======初始化MySQL数据库
 	var err error

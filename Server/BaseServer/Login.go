@@ -6,7 +6,7 @@ import (
 	"errors"
 )
 
-func (My_Server *BaseServer) Login(My_DTO DTO.LoginDTO) (Model.User, error) {
+func (My_Server *BaseServer) Login(My_DTO *DTO.LoginDTO) (Model.User, error) {
 
 	var ErrResult error
 

@@ -1,9 +1,9 @@
 package Router
 
-import "github.com/gin-gonic/gin"
+import (
+	"github.com/gin-gonic/gin"
+)
 
 func Init_worker_Route(rgPublic *gin.RouterGroup) {
-
-	rgPublic.PUT("/login",)
 
 }

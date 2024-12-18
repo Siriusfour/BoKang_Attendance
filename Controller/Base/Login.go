@@ -12,6 +12,7 @@ import (
 // 3.返回信息（页面，jwt）
 func (My_Base *Base) Login(ctx *gin.Context) {
 
+	My_Base.Logger.Info("Login - once")
 	//1.从ctx获取参数,并绑定到一个dto上
 	var loginDTO DTO.LoginDTO
 
@@ -27,8 +28,7 @@ func (My_Base *Base) Login(ctx *gin.Context) {
 		})
 		return
 	}
-
-	My_User, err := My_Base.Server.Login(Request_Message.DTO.(DTO.LoginDTO))
+	My_User, err := My_Base.Server.Login(Request_Message.DTO.(*DTO.LoginDTO))
 	if err != nil {
 		Fail(My_Base.Ctx, Response{
 			Message: err.Error(),
