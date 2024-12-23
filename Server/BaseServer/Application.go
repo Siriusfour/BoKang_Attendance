@@ -5,9 +5,9 @@ import (
 	"Attendance/Model"
 )
 
-func (My_Server *BaseServer) Excused(My_DTO DTO.ExcusedApplicationsDTO) error {
+func (My_Server *BaseServer) Application(My_DTO *DTO.ApplicationsDTO) error {
 
-	Pending_Application := Model.Pending_Application{
+	Application := Model.Application{
 		My_DTO.Name,
 		My_DTO.UserId,
 		My_DTO.Message,
@@ -15,9 +15,10 @@ func (My_Server *BaseServer) Excused(My_DTO DTO.ExcusedApplicationsDTO) error {
 		My_DTO.EndTime,
 		My_DTO.Department,
 		My_DTO.Leave_type,
+		1,
 	}
 
-	err := My_Server.Base_DAO.Excused(Pending_Application)
+	err := My_Server.Base_DAO.Application(Application)
 	if err != nil {
 		return err
 	}

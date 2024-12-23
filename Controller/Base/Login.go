@@ -12,7 +12,6 @@ import (
 // 3.返回信息（页面，jwt）
 func (My_Base *Base) Login(ctx *gin.Context) {
 
-	My_Base.Logger.Info("Login - once")
 	//1.从ctx获取参数,并绑定到一个dto上
 	var loginDTO DTO.LoginDTO
 
@@ -38,6 +37,17 @@ func (My_Base *Base) Login(ctx *gin.Context) {
 
 	//构筑jwt
 	token, err := Utills.Generatetoken(My_User.UserID, My_User.Password)
+
+	if My_User.Leader == 1 {
+		OK(My_Base.Ctx, Response{
+
+			Message: "登录成功",
+			Data: gin.H{
+				"token": token,
+				"User":  My_User,
+			},
+		})
+	}
 
 	OK(My_Base.Ctx, Response{
 

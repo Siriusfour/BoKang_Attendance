@@ -8,13 +8,12 @@ import (
 )
 
 type User struct {
-	gorm.Model
-	UserID       int    `gorm:"type:int(11);not null"`
+	UserID       int    `gorm:"type:int;not null"`
 	Name         string `gorm:"type:varchar(20);not null"`
 	Sex          int    `gorm:"type:INT;not null"`
 	Password     string `gorm:"type:varchar(255);not null"`
 	departmental string `gorm:"type:varchar(255);not null"`
-	leader       int    `gorm:"type:int;not null"`
+	Leader       int    `gorm:"type:int;not null"`
 }
 
 func EnCodePaasWord(password string) (string, error) {
@@ -32,6 +31,6 @@ func (user *User) BeforeCreate(tx *gorm.DB) (err error) {
 	return err
 }
 
-func (User) TableName() string {
+func (*User) TableName() string {
 	return "user" // 指定表名为 "user"
 }

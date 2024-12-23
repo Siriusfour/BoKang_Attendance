@@ -11,12 +11,12 @@ import (
 type JwtCustomClaims struct {
 	//通用配置
 	jwt.RegisteredClaims
-	ID   int
-	Name string
+	ID       int
+	Password string
 }
 
 // 获得用户名密码之后生成token
-func Generatetoken(id int, name string) (string, error) {
+func Generatetoken(id int, Password string) (string, error) {
 	//定义一个自己的JwtCustomClaims类型
 	MyJwt := JwtCustomClaims{
 		RegisteredClaims: jwt.RegisteredClaims{
@@ -26,8 +26,8 @@ func Generatetoken(id int, name string) (string, error) {
 			IssuedAt: jwt.NewNumericDate(time.Now()),
 			Subject:  "Token",
 		},
-		ID:   id,
-		Name: name,
+		ID:       id,
+		Password: Password,
 	}
 	//使用jwt.NewWithClaims对上面的结构体做哈希加密，生成token
 	Token := jwt.NewWithClaims(jwt.SigningMethodHS256, MyJwt)
@@ -42,10 +42,13 @@ func ParseJwt(Token string) (*JwtCustomClaims, error) {
 	token, err := jwt.ParseWithClaims(Token, &MyJwt, func(token *jwt.Token) (interface{}, error) {
 		return []byte(viper.GetString("Jwt.Key")), nil
 	})
-	if err == nil && token.Valid {
-		err = errors.New("token is invalid")
+
+	// 检查 token 是否有效
+	if err != nil || !token.Valid {
+		return nil, errors.New("token is invalid")
 	}
-	return &MyJwt, err
+
+	return &MyJwt, nil
 }
 
 // IsTokenValid  判断token是否有效

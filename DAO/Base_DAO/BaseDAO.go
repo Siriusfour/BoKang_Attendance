@@ -14,10 +14,10 @@ func NewBaseDAO(orm *gorm.DB) BaseDAO {
 	return DB
 }
 
-func (My_BaseDAO *BaseDAO) Get_User_Name_PassWord(Name string, Password string) Model.User {
+func (My_BaseDAO *BaseDAO) Get_User_Name_PassWord(UserID int, Password string) Model.User {
 
 	var iuser Model.User
-	My_BaseDAO.orm.Model(&iuser).Where("Name = ? AND Password = ?", Name, Password).Find(&iuser)
+	My_BaseDAO.orm.Model(&iuser).Where("user_id = ? AND Password = ?", UserID, Password).Find(&iuser)
 	return iuser
 
 }

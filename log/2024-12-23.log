@@ -1,0 +1,4 @@
+{"level":"INFO","time":"2024-12-23 13:38:04","msg":"正在开启，监听端口: 2333"}
+{"level":"INFO","time":"2024-12-23 14:09:23","msg":"正在开启，监听端口: 2333"}
+{"level":"ERROR","time":"2024-12-23 14:09:23","msg":"listen：2333，启动失败：listen tcp :2333: bind: Only one usage of each socket address (protocol/network address/port) is normally permitted."}
+{"level":"INFO","time":"2024-12-23 14:09:49","msg":"服务关闭: 2333"}
