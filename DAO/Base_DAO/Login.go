@@ -1,4 +1,4 @@
-package Base_DAO
+package BaseDAO
 
 import "Attendance/Model"
 

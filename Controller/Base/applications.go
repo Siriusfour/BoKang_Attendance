@@ -29,6 +29,7 @@ func (My_Base *Base) Application(ctx *gin.Context) {
 	}
 
 	//2.====
+	My_Base.IsTokenValid(ctx, Request_Message)
 
 	//3.====
 	err = My_Base.Server.Application(Request_Message.DTO.(*DTO.ApplicationsDTO))
@@ -36,7 +37,6 @@ func (My_Base *Base) Application(ctx *gin.Context) {
 		ServerFail(My_Base.Ctx, Response{
 			Message: Utills.Insect_is_Failed + "" + err.Error(),
 		})
-
 		return
 	}
 

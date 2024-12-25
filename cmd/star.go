@@ -22,6 +22,12 @@ func Start() {
 	//=======初始化系统配置
 	Config.InitConfig()
 
+	//=======初始化grpc客户端
+	Config.InitClient()
+
+	//=======初始化redis客户端
+	Config.InitRedis()
+
 	//======初始化MySQL数据库
 	var err error
 	Global.DB, err = Config.InitDB()

@@ -3,11 +3,19 @@ package BaseServer
 import (
 	"Attendance/Controller/DTO"
 	"Attendance/Model"
+	"gorm.io/gorm"
+	"time"
 )
 
-func (My_Server *BaseServer) Application(My_DTO *DTO.ApplicationsDTO) error {
+func (MyServer *BaseServer) Application(My_DTO *DTO.ApplicationsDTO) error {
 
 	Application := Model.Application{
+		gorm.Model{
+			ID:        My_DTO.ID,
+			CreatedAt: time.Time{},
+			UpdatedAt: time.Time{},
+			DeletedAt: gorm.DeletedAt{},
+		},
 		My_DTO.Name,
 		My_DTO.UserId,
 		My_DTO.Message,
@@ -15,10 +23,10 @@ func (My_Server *BaseServer) Application(My_DTO *DTO.ApplicationsDTO) error {
 		My_DTO.EndTime,
 		My_DTO.Department,
 		My_DTO.Leave_type,
-		1,
+		0,
 	}
 
-	err := My_Server.Base_DAO.Application(Application)
+	err := MyServer.BaseDAO.Application(Application)
 	if err != nil {
 		return err
 	}

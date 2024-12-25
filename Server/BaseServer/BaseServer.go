@@ -6,13 +6,13 @@ import (
 )
 
 type BaseServer struct {
-	Base_DAO *Base_DAO.BaseDAO
+	BaseDAO *BaseDAO.BaseDAO
 }
 
 func New_Base_Server() *BaseServer {
 
-	DB := Base_DAO.NewBaseDAO(Global.DB)
+	DB := BaseDAO.New_Base_DAO(Global.DB)
 	return &BaseServer{
-		Base_DAO: &DB,
+		BaseDAO: DB,
 	}
 }

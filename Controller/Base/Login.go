@@ -2,7 +2,6 @@ package Base
 
 import (
 	"Attendance/Controller/DTO"
-	"Attendance/Utills"
 	"fmt"
 	"github.com/gin-gonic/gin"
 )
@@ -27,35 +26,19 @@ func (My_Base *Base) Login(ctx *gin.Context) {
 		})
 		return
 	}
-	My_User, err := My_Base.Server.Login(Request_Message.DTO.(*DTO.LoginDTO))
+
+	My_Base.IsTokenValid(ctx, Request_Message)
+
+	ApplicationsDTOArray, err := My_Base.Server.Login(Request_Message.DTO.(DTO.LoginDTO))
 	if err != nil {
-		Fail(My_Base.Ctx, Response{
-			Message: err.Error(),
-		})
-		return
-	}
-
-	//构筑jwt
-	token, err := Utills.Generatetoken(My_User.UserID, My_User.Password)
-
-	if My_User.Leader == 1 {
-		OK(My_Base.Ctx, Response{
-
-			Message: "登录成功",
-			Data: gin.H{
-				"token": token,
-				"User":  My_User,
-			},
+		ServerFail(ctx, Response{
+			Message: fmt.Errorf(":%v", err).Error(),
 		})
 	}
 
-	OK(My_Base.Ctx, Response{
-
-		Message: "登录成功",
-		Data: gin.H{
-			"token": token,
-			"User":  My_User,
-		},
+	OK(ctx, Response{
+		Message: "Success",
+		Data:    ApplicationsDTOArray,
 	})
 
 }

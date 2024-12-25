@@ -10,5 +10,5 @@ func Init_Base_Route(rgBase *gin.RouterGroup) {
 	Base_Contorller := Base.NewBase()
 
 	rgBase.POST("/login", Base_Contorller.Login)
-	rgBase.POST("/PutExcused", Base_Contorller.Application)
+	rgBase.POST("/Application", Base_Contorller.Application)
 }

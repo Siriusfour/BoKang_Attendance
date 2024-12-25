@@ -2,17 +2,32 @@ package BaseServer
 
 import (
 	"Attendance/Controller/DTO"
+	"Attendance/Global"
 	"Attendance/Model"
-	"errors"
 )
 
-func (My_Server *BaseServer) Login(My_DTO *DTO.LoginDTO) (Model.User, error) {
+func (My_Server *BaseServer) Login(My_DTO DTO.LoginDTO) (*DTO.ApplicationsDTOArray, error) {
 
-	var ErrResult error
+	var UserInfo Model.User
+	var applicationsDTOArray DTO.ApplicationsDTOArray
 
-	My_user := My_Server.Base_DAO.Get_User_Name_PassWord(My_DTO.UserID, My_DTO.PassWord)
-	if My_user.UserID == 0 {
-		ErrResult = errors.New("登录失败，用户名或密码不正确")
+	err := Global.DB.Where("user_id=?", My_DTO.UserID).First(&UserInfo).Error
+	if err != nil {
+		return &applicationsDTOArray, err
 	}
-	return My_user, ErrResult
+
+	if UserInfo.Leader != 0 {
+		err = Global.DB.Where("Department=?", UserInfo.Leader).Find(&applicationsDTOArray.DepartmentApplications).Error
+		if err != nil {
+			return &applicationsDTOArray, err
+		}
+	}
+
+	err = Global.DB.Where("user_id=?", UserInfo.UserID).First(&applicationsDTOArray.MyApplications).Error
+	if err != nil {
+		return &applicationsDTOArray, err
+	}
+
+	return &applicationsDTOArray, nil
+
 }

@@ -1,18 +1,25 @@
 package Base
 
 import (
+	"Attendance/Controller/DTO"
 	"Attendance/Global"
 	"Attendance/Server/BaseServer"
 	"Attendance/Utills"
+	"Attendance/grpc/MyProto"
 	"errors"
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator/v10"
+	"github.com/redis/go-redis/v9"
+	"github.com/spf13/viper"
 	"go.uber.org/zap"
+	"golang.org/x/net/context"
 	"reflect"
+	"strconv"
+	"time"
 )
 
-// Base         Admin 和  worker 通用结构体与方法
+// Base         Leader 和  worker 通用结构体与方法
 type Base struct {
 	Ctx    *gin.Context
 	errors error
@@ -92,4 +99,46 @@ func parseErr(Errs error, tager interface{}) error {
 	}
 
 	return ErrRuslt
+}
+
+func (My_Base *Base) IsTokenValid(ctx *gin.Context, Request_Message BuildRequest) {
+
+	redis_AccseeToken := strconv.Itoa(Request_Message.DTO.(DTO.LoginDTO).UserID) + "_AccseeToken"
+	redis_RefreshToken := strconv.Itoa(Request_Message.DTO.(DTO.LoginDTO).UserID) + "_RefreshToken"
+
+	switch {
+	case Request_Message.DTO.(DTO.LoginDTO).Access_Token != "":
+		{
+			ak, err := Global.RedisClient.Get(context.Background(), redis_AccseeToken).Result()
+			if (err != nil || ak != "") && ak != Request_Message.DTO.(DTO.LoginDTO).Access_Token {
+				Fail(ctx, Response{
+					Message: fmt.Sprintf("Access_Token_Is_Invalid or query is failed in redis:%v", err),
+					Code:    Utills.AccessTokenIsInvalid,
+				})
+			}
+		}
+	case Request_Message.DTO.(DTO.LoginDTO).Refresh_Token != "":
+		{
+			rk, err := Global.RedisClient.Get(context.Background(), redis_RefreshToken).Result()
+			if (err != nil || !errors.Is(err, redis.Nil) || rk != "") && rk != Request_Message.DTO.(DTO.LoginDTO).Refresh_Token {
+				Fail(ctx, Response{
+					Message: fmt.Sprintf("Refresh_Token_Is_Invalid"),
+					Code:    Utills.RefreshTokenIsValid,
+				})
+			}
+
+			ak, err := Global.Grpc_Client.RefreshToken(context.Background(), &MyProto.RefreshTokenRequest{RefreshToken: rk})
+
+			err = Global.RedisClient.Set(context.Background(), redis_AccseeToken, ak, time.Duration(viper.GetInt("key.Refresh_Token_OutTime"))).Err()
+
+		}
+
+	case Request_Message.DTO.(DTO.LoginDTO).Password != "":
+		{
+
+			Global.Grpc_Client.Login(context.Background())
+
+		}
+	}
+
 }
