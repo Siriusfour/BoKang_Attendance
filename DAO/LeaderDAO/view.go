@@ -2,24 +2,24 @@ package LeaderDAO
 
 import "Attendance/Model"
 
-func (leader_DAO *LeaderDAO) View_Access(ApplicationID int) {
+func (leader_DAO *LeaderDAO) View(ApplicationID int, ok bool) (err error) {
 
 	var Application_info Model.Application
 
-	leader_DAO.orm.Where("id = ?", ApplicationID).First(&Application_info)
+	err = leader_DAO.orm.Where("id = ?", ApplicationID).First(&Application_info).Error
+	if err != nil {
+		return err
+	}
 
-	Application_info.Status = 1
+	if ok {
+		Application_info.Status = 1
+	} else {
+		Application_info.Status = -1
+	}
 
-	leader_DAO.orm.Save(&Application_info)
-}
-
-func (leader_DAO *LeaderDAO) View_rejected(ApplicationID int) {
-
-	var Application_info Model.Application
-
-	leader_DAO.orm.Where("id = ?", ApplicationID).First(&Application_info)
-
-	Application_info.Status = -1
-
-	leader_DAO.orm.Save(&Application_info)
+	err = leader_DAO.orm.Save(&Application_info).Error
+	if err != nil {
+		return err
+	}
+	return nil
 }

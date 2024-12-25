@@ -50,7 +50,7 @@ func (My_Base *Base) GetErrors() error {
 	return My_Base.errors
 }
 
-// 从HTTP中提取信息， 构筑请求结构体
+// Build_request 从HTTP中提取信息， 构筑请求结构体
 func (My_Base *Base) Build_request(Request BuildRequest) *Base {
 
 	var ErrRuslt error
@@ -101,7 +101,7 @@ func parseErr(Errs error, tager interface{}) error {
 	return ErrRuslt
 }
 
-func (My_Base *Base) IsTokenValid(ctx *gin.Context, Request_Message BuildRequest) {
+func (My_Base *Base) IsTokenValid(ctx *gin.Context, Request_Message BuildRequest) error {
 
 	redis_AccseeToken := strconv.Itoa(Request_Message.DTO.(DTO.LoginDTO).UserID) + "_AccseeToken"
 	redis_RefreshToken := strconv.Itoa(Request_Message.DTO.(DTO.LoginDTO).UserID) + "_RefreshToken"
@@ -136,9 +136,26 @@ func (My_Base *Base) IsTokenValid(ctx *gin.Context, Request_Message BuildRequest
 	case Request_Message.DTO.(DTO.LoginDTO).Password != "":
 		{
 
-			Global.Grpc_Client.Login(context.Background())
+			key := []byte(viper.GetString("key.privateKey"))
+			cipherText, err := Utills.Encrypt(key, []byte(Request_Message.DTO.(DTO.LoginDTO).Password))
+			if err != nil {
+				return err
+			}
 
+			LoginRequest := &MyProto.LoginRequest{
+				Ciphertext: string(cipherText),
+			}
+
+			LoginResponse, err := Global.Grpc_Client.Login(context.Background(), LoginRequest)
+			if err != nil {
+				return err
+			}
+
+			Global.RedisClient.Set(context.Background(), LoginResponse.UserId+"_AccseeToken", LoginResponse.AccessToken, time.Duration(viper.GetInt("key.Access_Token_OutTime")))
+			Global.RedisClient.Set(context.Background(), LoginResponse.UserId+"_RefreshToken", LoginResponse.AccessToken, time.Duration(viper.GetInt("key.Refresh_Token_OutTime")))
 		}
+
 	}
 
+	return nil
 }

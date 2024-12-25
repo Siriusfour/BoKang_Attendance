@@ -7,7 +7,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func (leader_controller *LeaderController) name(ctx *gin.Context) {
+func (leader_controller *LeaderController) View(ctx *gin.Context) {
 
 	//1.从ctx获取参数,并绑定到一个dto上
 	var ViewDTO DTO.ViewDTO
@@ -26,6 +26,15 @@ func (leader_controller *LeaderController) name(ctx *gin.Context) {
 		return
 	}
 
-	leader_controller.LeaderServer.View(Request_Message.DTO.(DTO.ViewDTO))
+	err = leader_controller.LeaderServer.View(Request_Message.DTO.(DTO.ViewDTO))
+	if err != nil {
+		Base.Fail(ctx, Base.Response{
+			Message: fmt.Errorf("View Error:%v", err).Error(),
+		})
+	}
+
+	Base.OK(ctx, Base.Response{
+		Data: ViewDTO,
+	})
 
 }

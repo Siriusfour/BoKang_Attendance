@@ -2,12 +2,12 @@ package LeaderServer
 
 import "Attendance/Controller/DTO"
 
-func (leader_server *LeaderServer) View(ViewDTO DTO.ViewDTO) {
+func (leader_server *LeaderServer) View(ViewDTO DTO.ViewDTO) error {
 
-	if ViewDTO.OK {
-		leader_server.LeaderDAO.View_Access(ViewDTO.ApplicationsID)
-	} else {
-		leader_server.LeaderDAO.View_rejected(ViewDTO.ApplicationsID)
+	err := leader_server.LeaderDAO.View(ViewDTO.ApplicationsID, ViewDTO.OK)
+	if err != nil {
+		return err
 	}
 
+	return nil
 }

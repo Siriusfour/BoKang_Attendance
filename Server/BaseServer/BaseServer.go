@@ -1,7 +1,7 @@
 package BaseServer
 
 import (
-	"Attendance/DAO/Base_DAO"
+	"Attendance/DAO/BaseDAO"
 	"Attendance/Global"
 )
 
