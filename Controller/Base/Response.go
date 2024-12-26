@@ -17,6 +17,8 @@ type Response struct {
 	Data interface{} `json:"data,omitempty"`
 	// 请求列表时候返回的总页数
 	Sum int64 `json:"sum,omitempty"`
+	//刷新的token信息
+	Token interface{} `json:"token,omitempty"`
 }
 
 // BuildStatus 构筑状态码，优先使用response的状态码，其为空返回code

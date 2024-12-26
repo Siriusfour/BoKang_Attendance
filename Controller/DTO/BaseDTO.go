@@ -32,12 +32,13 @@ type LoginDTO struct {
 
 type ApplicationsDTO struct {
 	gorm.Model
-	Name       string    `json:"Name" binding:"required" `
-	UserId     int       `json:"UserId" binding:"required" `
-	Message    string    `json:"Message"`
-	StartTime  time.Time `json:"StartTime" binding:"required"`
-	EndTime    time.Time `json:"EndTime" binding:"required"`
-	Department int       `json:"Department" binding:"required"`
-	Leave_type int       `json:"Leave_type" binding:"required"`
-	Token      string    `json:"Token" binding:"required"`
+	Name        string    `json:"Name" binding:"required"`
+	UserId      int       `json:"UserId" binding:"required"`
+	Message     string    `json:"Message"`
+	StartTime   time.Time `json:"StartTime" binding:"required"`
+	EndTime     time.Time `json:"EndTime" binding:"required"`
+	Department  int       `json:"Department" binding:"required"`
+	Leave_type  int       `json:"Leave_type" binding:"required"`
+	AccessToken string    `json:"AccessToken" binding:"required"` // 与 JSON 字段名一致
+	Status      int       `json:"Status" binding:"required"`
 }

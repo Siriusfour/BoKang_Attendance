@@ -29,11 +29,16 @@ func (My_Base *Base) Login(ctx *gin.Context) {
 	}
 
 	//判断token是否有效
-	err = My_Base.IsTokenValid(ctx, Request_Message)
-	if err != nil {
+	TokenInfo, TokenErr := My_Base.IsTokenValid(TokenVerifyInfo{
+		UserID:        Request_Message.DTO.(DTO.LoginDTO).UserID,
+		Access_token:  Request_Message.DTO.(DTO.LoginDTO).Access_Token,
+		Refresh_token: Request_Message.DTO.(DTO.LoginDTO).Refresh_Token,
+		PassWord:      Request_Message.DTO.(DTO.LoginDTO).Password,
+	})
+	if TokenErr != nil {
 		ServerFail(ctx, Response{
-			Code:    Utills.AccessTokenIsInvalid,
-			Message: err.Error(),
+			Code:    TokenErr.ErrorCode(),
+			Message: TokenErr.Error(),
 		})
 		return
 	}
@@ -52,6 +57,7 @@ func (My_Base *Base) Login(ctx *gin.Context) {
 	OK(ctx, Response{
 		Message: "Success",
 		Data:    ApplicationArray,
+		Token:   TokenInfo,
 	})
 
 }

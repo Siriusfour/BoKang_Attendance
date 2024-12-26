@@ -37,7 +37,3 @@ func Start() {
 
 	return
 }
-
-func Clean() {
-	fmt.Println("=======End=======")
-}

@@ -21,15 +21,24 @@ func (My_Base *Base) Application(ctx *gin.Context) {
 	}
 
 	err := My_Base.Build_request(Request_Message).GetErrors()
+
 	if err != nil {
-		ServerFail(My_Base.Ctx, Response{
-			Message: Utills.Binding_Data_is_Failed + err.Error(),
-		})
 		return
 	}
 
 	//2.====
-	My_Base.IsTokenValid(ctx, Request_Message)
+	_, TokenErr := My_Base.IsTokenValid(
+		TokenVerifyInfo{
+			UserID:       Request_Message.DTO.(DTO.ApplicationsDTO).UserId,
+			Access_token: Request_Message.DTO.(DTO.ApplicationsDTO).AccessToken,
+		})
+	if TokenErr != nil {
+		Fail(My_Base.Ctx, Response{
+			Message: TokenErr.Error(),
+			Code:    TokenErr.ErrorCode(),
+		})
+		return
+	}
 
 	//3.====
 	err = My_Base.Server.Application(Request_Message.DTO.(*DTO.ApplicationsDTO))

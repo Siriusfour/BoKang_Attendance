@@ -1,19 +1,18 @@
 package Base
 
 import (
-	"Attendance/Controller/DTO"
 	"Attendance/Global"
 	"Attendance/Server/BaseServer"
 	"Attendance/Utills"
 	"Attendance/grpc/MyProto"
+	"context"
+	"encoding/base64"
 	"errors"
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator/v10"
-	"github.com/redis/go-redis/v9"
 	"github.com/spf13/viper"
 	"go.uber.org/zap"
-	"golang.org/x/net/context"
 	"reflect"
 	"strconv"
 	"time"
@@ -31,6 +30,13 @@ type Base struct {
 type BuildRequest struct {
 	Ctx *gin.Context
 	DTO any
+}
+
+type TokenVerifyInfo struct {
+	UserID        int
+	Access_token  string
+	Refresh_token string
+	PassWord      string
 }
 
 func NewBase() *Base {
@@ -54,11 +60,12 @@ func (My_Base *Base) GetErrors() error {
 func (My_Base *Base) Build_request(Request BuildRequest) *Base {
 
 	var ErrRuslt error
+
 	My_Base.Ctx = Request.Ctx
 
 	if Request.DTO != nil {
 
-		ErrRuslt = My_Base.Ctx.ShouldBind(Request.DTO)
+		ErrRuslt = My_Base.Ctx.ShouldBindBodyWithJSON(Request.DTO)
 
 		if ErrRuslt != nil {
 			Err := parseErr(ErrRuslt, Request.DTO)
@@ -101,71 +108,81 @@ func parseErr(Errs error, tager interface{}) error {
 	return ErrRuslt
 }
 
-// 验证token
-func (My_Base *Base) IsTokenValid(ctx *gin.Context, Request_Message BuildRequest) error {
+// IsTokenValid 验证token
+func (My_Base *Base) IsTokenValid(tokenVerifyInfo TokenVerifyInfo) (TokenVerifyInfo, *Utills.MyError) {
 
-	redis_AccseeToken := strconv.Itoa(Request_Message.DTO.(*DTO.LoginDTO).UserID) + "_AccseeToken"
-	redis_RefreshToken := strconv.Itoa(Request_Message.DTO.(*DTO.LoginDTO).UserID) + "_RefreshToken"
+	redis_AccseeToken := strconv.Itoa(tokenVerifyInfo.UserID) + "_AccseeToken"
+	redis_RefreshToken := strconv.Itoa(tokenVerifyInfo.UserID) + "_RefreshToken"
 
+	LoginTokenInfo := TokenVerifyInfo{}
 	switch {
 
 	//http请求里只有Access_Token
-	case Request_Message.DTO.(*DTO.LoginDTO).Access_Token != "":
+	case tokenVerifyInfo.Access_token != "":
 		{
 			ak, err := Global.RedisClient.Get(context.Background(), redis_AccseeToken).Result()
-			if err != nil || ak == "" || ak != Request_Message.DTO.(*DTO.LoginDTO).Access_Token {
+			if err != nil || ak == "" || ak != tokenVerifyInfo.Access_token {
 
-				return Utills.ErrIsATokenIsInvalid
+				return LoginTokenInfo, Utills.ErrIsATokenIsInvalid
 			}
 		}
 
 	//http请求里只有Refresh_Token
-	case Request_Message.DTO.(*DTO.LoginDTO).Refresh_Token != "":
+	case tokenVerifyInfo.Refresh_token != "":
 		{
 			rk, err := Global.RedisClient.Get(context.Background(), redis_RefreshToken).Result()
-			if (err != nil || !errors.Is(err, redis.Nil) || rk == "") || rk != Request_Message.DTO.(*DTO.LoginDTO).Refresh_Token {
-				return Utills.ErrIsRTokenIsInvalid
+			if (err != nil || rk == "") || rk != tokenVerifyInfo.Refresh_token {
+				return LoginTokenInfo, Utills.ErrIsRTokenIsInvalid
 			}
 
 			ak, err := Global.Grpc_Client.RefreshToken(context.Background(), &MyProto.RefreshTokenRequest{RefreshToken: rk})
 
-			err = Global.RedisClient.Set(context.Background(), redis_AccseeToken, ak, time.Duration(viper.GetInt("key.Refresh_Token_OutTime"))).Err()
+			err = Global.RedisClient.Set(context.Background(), redis_AccseeToken, ak, time.Duration(viper.GetInt("key.Refresh_Token_OutTime"))*10080*60).Err()
+
+			//return LoginTokenInfo{Access_token: ak.AccessToken}, nil
+			LoginTokenInfo.Access_token = ak.AccessToken
 
 		}
 
 		//http请求里只有Password
-	case Request_Message.DTO.(*DTO.LoginDTO).Password != "":
+	case tokenVerifyInfo.PassWord != "":
 		{
 
 			//对称加密
 			key := []byte(viper.GetString("key.privateKey"))
-			cipherText, err := Utills.Encrypt(key, []byte(Request_Message.DTO.(*DTO.LoginDTO).Password))
+			cipherText, err := Utills.Encrypt(key, []byte(tokenVerifyInfo.PassWord))
 			if err != nil {
-				return err
+
+				return LoginTokenInfo, Utills.NewMyError(err.Error(), Utills.PassWordCryptoIsFailed)
 			}
 
-			LoginRequest := &MyProto.LoginRequest{
-				Ciphertext: string(cipherText),
-			}
+			encodedCipherText := base64.StdEncoding.EncodeToString(cipherText)
+			println(encodedCipherText)
+
+			var LoginRequest MyProto.LoginRequest
+
+			LoginRequest.Ciphertext = encodedCipherText
 
 			//调用rpc验证密码
-			LoginResponse, err := Global.Grpc_Client.Login(context.Background(), LoginRequest)
+			LoginResponse, err := Global.Grpc_Client.Login(context.Background(), &LoginRequest)
 			if err != nil {
-				return err
+				return LoginTokenInfo, Utills.NewMyError(err.Error(), Utills.PassWordVerifyIsFailed)
 			}
 
 			//如果密码正确,把刷新的ak、rk写入redis
 			if LoginResponse != nil {
-
 				Global.RedisClient.Set(context.Background(), LoginResponse.UserId+"_AccseeToken", LoginResponse.AccessToken, time.Duration(viper.GetInt("key.Access_Token_OutTime")))
 				Global.RedisClient.Set(context.Background(), LoginResponse.UserId+"_RefreshToken", LoginResponse.AccessToken, time.Duration(viper.GetInt("key.Refresh_Token_OutTime")))
-			} else {
-				return fmt.Errorf("PassWord is failed：%v", err)
-			}
 
+				LoginTokenInfo.Access_token = LoginResponse.AccessToken
+				LoginTokenInfo.Refresh_token = LoginResponse.RefreshToken
+
+			} else {
+				return LoginTokenInfo, Utills.NewMyError(err.Error(), Utills.PassWordVerifyIsFailed)
+			}
 		}
 
 	}
 
-	return nil
+	return LoginTokenInfo, nil
 }
