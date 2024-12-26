@@ -10,3 +10,7 @@ type User struct {
 	departmental string `gorm:"type:varchar(255);not null"`
 	Leader       int    `gorm:"type:int;not null"`
 }
+
+func (User) TableName() string {
+	return "users"
+}

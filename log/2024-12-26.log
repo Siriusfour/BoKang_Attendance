@@ -1,0 +1,24 @@
+{"level":"INFO","time":"2024-12-26 10:01:28","msg":"正在开启，监听端口: 2333"}
+{"level":"INFO","time":"2024-12-26 10:05:06","msg":"服务关闭: 2333"}
+{"level":"INFO","time":"2024-12-26 10:05:30","msg":"正在开启，监听端口: 2333"}
+{"level":"INFO","time":"2024-12-26 10:07:09","msg":"服务关闭: 2333"}
+{"level":"INFO","time":"2024-12-26 10:07:13","msg":"正在开启，监听端口: 2333"}
+{"level":"INFO","time":"2024-12-26 10:14:49","msg":"服务关闭: 2333"}
+{"level":"INFO","time":"2024-12-26 10:14:53","msg":"正在开启，监听端口: 2333"}
+{"level":"INFO","time":"2024-12-26 10:15:00","msg":"服务关闭: 2333"}
+{"level":"INFO","time":"2024-12-26 10:19:25","msg":"正在开启，监听端口: 2333"}
+{"level":"INFO","time":"2024-12-26 10:24:43","msg":"服务关闭: 2333"}
+{"level":"INFO","time":"2024-12-26 10:24:50","msg":"正在开启，监听端口: 2333"}
+{"level":"INFO","time":"2024-12-26 10:25:32","msg":"正在开启，监听端口: 2333"}
+{"level":"ERROR","time":"2024-12-26 10:25:32","msg":"listen：2333，启动失败：listen tcp :2333: bind: Only one usage of each socket address (protocol/network address/port) is normally permitted."}
+{"level":"INFO","time":"2024-12-26 10:25:40","msg":"服务关闭: 2333"}
+{"level":"INFO","time":"2024-12-26 10:25:46","msg":"正在开启，监听端口: 2333"}
+{"level":"ERROR","time":"2024-12-26 10:25:46","msg":"listen：2333，启动失败：listen tcp :2333: bind: Only one usage of each socket address (protocol/network address/port) is normally permitted."}
+{"level":"INFO","time":"2024-12-26 10:25:54","msg":"服务关闭: 2333"}
+{"level":"INFO","time":"2024-12-26 10:25:59","msg":"服务关闭: 2333"}
+{"level":"INFO","time":"2024-12-26 10:26:05","msg":"正在开启，监听端口: 2333"}
+{"level":"INFO","time":"2024-12-26 10:27:18","msg":"服务关闭: 2333"}
+{"level":"INFO","time":"2024-12-26 10:45:04","msg":"正在开启，监听端口: 2333"}
+{"level":"INFO","time":"2024-12-26 10:46:13","msg":"服务关闭: 2333"}
+{"level":"INFO","time":"2024-12-26 10:47:09","msg":"正在开启，监听端口: 2333"}
+{"level":"INFO","time":"2024-12-26 10:48:59","msg":"服务关闭: 2333"}

@@ -41,15 +41,3 @@ type ApplicationsDTO struct {
 	Leave_type int       `json:"Leave_type" binding:"required"`
 	Token      string    `json:"Token" binding:"required"`
 }
-
-type ApplicationsDTOArray struct {
-	MyApplications         []ApplicationsDTO
-	DepartmentApplications []ApplicationsDTO
-}
-
-type UserInfoDTO struct {
-	UserID       int    `gorm:"type:int;not null"`
-	Name         string `gorm:"type:varchar(20);not null"`
-	departmental string `gorm:"type:varchar(255);not null"`
-	Leader       int    `gorm:"type:int;not null"`
-}

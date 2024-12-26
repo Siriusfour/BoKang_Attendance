@@ -17,6 +17,11 @@ type Application struct {
 	Status     int       `gorm:"type:int;not null"`
 }
 
+type ApplicationsArray struct {
+	MyApplications         []Application
+	DepartmentApplications []Application
+}
+
 func (Application) TableName() string {
 	return "applications" // 指定表名为 "applications"
 }

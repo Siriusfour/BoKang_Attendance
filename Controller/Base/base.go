@@ -101,26 +101,31 @@ func parseErr(Errs error, tager interface{}) error {
 	return ErrRuslt
 }
 
+// 验证token
 func (My_Base *Base) IsTokenValid(ctx *gin.Context, Request_Message BuildRequest) error {
 
-	redis_AccseeToken := strconv.Itoa(Request_Message.DTO.(DTO.LoginDTO).UserID) + "_AccseeToken"
-	redis_RefreshToken := strconv.Itoa(Request_Message.DTO.(DTO.LoginDTO).UserID) + "_RefreshToken"
+	redis_AccseeToken := strconv.Itoa(Request_Message.DTO.(*DTO.LoginDTO).UserID) + "_AccseeToken"
+	redis_RefreshToken := strconv.Itoa(Request_Message.DTO.(*DTO.LoginDTO).UserID) + "_RefreshToken"
 
 	switch {
-	case Request_Message.DTO.(DTO.LoginDTO).Access_Token != "":
+
+	//http请求里只有Access_Token
+	case Request_Message.DTO.(*DTO.LoginDTO).Access_Token != "":
 		{
 			ak, err := Global.RedisClient.Get(context.Background(), redis_AccseeToken).Result()
-			if (err != nil || ak != "") && ak != Request_Message.DTO.(DTO.LoginDTO).Access_Token {
+			if (err != nil || ak != "") && ak != Request_Message.DTO.(*DTO.LoginDTO).Access_Token {
 				Fail(ctx, Response{
 					Message: fmt.Sprintf("Access_Token_Is_Invalid or query is failed in redis:%v", err),
 					Code:    Utills.AccessTokenIsInvalid,
 				})
 			}
 		}
-	case Request_Message.DTO.(DTO.LoginDTO).Refresh_Token != "":
+
+	//http请求里只有Refresh_Token
+	case Request_Message.DTO.(*DTO.LoginDTO).Refresh_Token != "":
 		{
 			rk, err := Global.RedisClient.Get(context.Background(), redis_RefreshToken).Result()
-			if (err != nil || !errors.Is(err, redis.Nil) || rk != "") && rk != Request_Message.DTO.(DTO.LoginDTO).Refresh_Token {
+			if (err != nil || !errors.Is(err, redis.Nil) || rk != "") && rk != Request_Message.DTO.(*DTO.LoginDTO).Refresh_Token {
 				Fail(ctx, Response{
 					Message: fmt.Sprintf("Refresh_Token_Is_Invalid"),
 					Code:    Utills.RefreshTokenIsValid,
@@ -133,11 +138,13 @@ func (My_Base *Base) IsTokenValid(ctx *gin.Context, Request_Message BuildRequest
 
 		}
 
-	case Request_Message.DTO.(DTO.LoginDTO).Password != "":
+		//http请求里只有Password
+	case Request_Message.DTO.(*DTO.LoginDTO).Password != "":
 		{
 
+			//对称加密
 			key := []byte(viper.GetString("key.privateKey"))
-			cipherText, err := Utills.Encrypt(key, []byte(Request_Message.DTO.(DTO.LoginDTO).Password))
+			cipherText, err := Utills.Encrypt(key, []byte(Request_Message.DTO.(*DTO.LoginDTO).Password))
 			if err != nil {
 				return err
 			}
@@ -146,13 +153,21 @@ func (My_Base *Base) IsTokenValid(ctx *gin.Context, Request_Message BuildRequest
 				Ciphertext: string(cipherText),
 			}
 
+			//调用rpc验证密码
 			LoginResponse, err := Global.Grpc_Client.Login(context.Background(), LoginRequest)
 			if err != nil {
 				return err
 			}
 
-			Global.RedisClient.Set(context.Background(), LoginResponse.UserId+"_AccseeToken", LoginResponse.AccessToken, time.Duration(viper.GetInt("key.Access_Token_OutTime")))
-			Global.RedisClient.Set(context.Background(), LoginResponse.UserId+"_RefreshToken", LoginResponse.AccessToken, time.Duration(viper.GetInt("key.Refresh_Token_OutTime")))
+			//如果密码正确,把刷新的ak、rk写入redis
+			if LoginResponse != nil {
+
+				Global.RedisClient.Set(context.Background(), LoginResponse.UserId+"_AccseeToken", LoginResponse.AccessToken, time.Duration(viper.GetInt("key.Access_Token_OutTime")))
+				Global.RedisClient.Set(context.Background(), LoginResponse.UserId+"_RefreshToken", LoginResponse.AccessToken, time.Duration(viper.GetInt("key.Refresh_Token_OutTime")))
+			} else {
+				return fmt.Errorf("PassWord is failed：%v", err)
+			}
+
 		}
 
 	}
