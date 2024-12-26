@@ -32,8 +32,10 @@ func (My_Base *Base) Login(ctx *gin.Context) {
 	err = My_Base.IsTokenValid(ctx, Request_Message)
 	if err != nil {
 		ServerFail(ctx, Response{
-			Message: fmt.Errorf(Utills.Token_is_failed, err).Error(),
+			Code:    Utills.AccessTokenIsInvalid,
+			Message: err.Error(),
 		})
+		return
 	}
 
 	//调用server层方法

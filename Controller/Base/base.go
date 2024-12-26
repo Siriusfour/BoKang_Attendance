@@ -113,11 +113,9 @@ func (My_Base *Base) IsTokenValid(ctx *gin.Context, Request_Message BuildRequest
 	case Request_Message.DTO.(*DTO.LoginDTO).Access_Token != "":
 		{
 			ak, err := Global.RedisClient.Get(context.Background(), redis_AccseeToken).Result()
-			if (err != nil || ak != "") && ak != Request_Message.DTO.(*DTO.LoginDTO).Access_Token {
-				Fail(ctx, Response{
-					Message: fmt.Sprintf("Access_Token_Is_Invalid or query is failed in redis:%v", err),
-					Code:    Utills.AccessTokenIsInvalid,
-				})
+			if err != nil || ak == "" || ak != Request_Message.DTO.(*DTO.LoginDTO).Access_Token {
+
+				return Utills.ErrIsATokenIsInvalid
 			}
 		}
 
@@ -125,11 +123,8 @@ func (My_Base *Base) IsTokenValid(ctx *gin.Context, Request_Message BuildRequest
 	case Request_Message.DTO.(*DTO.LoginDTO).Refresh_Token != "":
 		{
 			rk, err := Global.RedisClient.Get(context.Background(), redis_RefreshToken).Result()
-			if (err != nil || !errors.Is(err, redis.Nil) || rk != "") && rk != Request_Message.DTO.(*DTO.LoginDTO).Refresh_Token {
-				Fail(ctx, Response{
-					Message: fmt.Sprintf("Refresh_Token_Is_Invalid"),
-					Code:    Utills.RefreshTokenIsValid,
-				})
+			if (err != nil || !errors.Is(err, redis.Nil) || rk == "") || rk != Request_Message.DTO.(*DTO.LoginDTO).Refresh_Token {
+				return Utills.ErrIsRTokenIsInvalid
 			}
 
 			ak, err := Global.Grpc_Client.RefreshToken(context.Background(), &MyProto.RefreshTokenRequest{RefreshToken: rk})

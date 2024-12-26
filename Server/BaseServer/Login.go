@@ -21,13 +21,13 @@ func (My_Server *BaseServer) Login(My_DTO *DTO.LoginDTO) (*Model.ApplicationsArr
 	}
 
 	if UserInfo.Leader != 0 {
-		err = Global.DB.Where("Department=?", UserInfo.Leader).Find(&MyApplications).Error
+		err = Global.DB.Where("Department=?", UserInfo.Leader).Find(&DepartmentApplications).Error
 		if err != nil {
 			return &ApplicationsArray, err
 		}
 	}
 
-	err = Global.DB.Where("user_id=?", UserInfo.UserID).Find(&DepartmentApplications).Error
+	err = Global.DB.Where("user_id=?", UserInfo.UserID).Find(&MyApplications).Error
 	if err != nil {
 		return &ApplicationsArray, err
 	}
