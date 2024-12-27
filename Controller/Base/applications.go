@@ -10,7 +10,7 @@ import (
 // 2.检查DTO中的token是否有效,请假人信息和jwt内容是否相等 (grpc远程判断)
 // 3.调用server，在数据库插入待处理请假信息。
 // 4.返回ok
-func (My_Base *Base) Application(ctx *gin.Context) {
+func (My_Base *BaseController) Application(ctx *gin.Context) {
 
 	//1.====
 	var ApplicationsDTO DTO.ApplicationsDTO
@@ -20,8 +20,14 @@ func (My_Base *Base) Application(ctx *gin.Context) {
 		DTO: &ApplicationsDTO,
 	}
 
-	err := My_Base.Build_request(Request_Message).GetErrors()
+	err := My_Base.Build_request(Request_Message)
 	if err != nil {
+
+		Fail(ctx, Response{
+			Message: Utills.ErrIsBindingDataIsFailed.ErrorAppend(err).Error(),
+			Code:    Utills.ErrIsBindingDataIsFailed.Code,
+		})
+
 		return
 	}
 

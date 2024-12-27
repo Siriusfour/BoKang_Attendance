@@ -11,7 +11,6 @@ func (MyServer *BaseServer) Application(My_DTO *DTO.ApplicationsDTO) error {
 
 	Application := Model.Application{
 		gorm.Model{
-			ID:        My_DTO.ApplicationID,
 			CreatedAt: time.Time{},
 			UpdatedAt: time.Time{},
 			DeletedAt: gorm.DeletedAt{},
@@ -26,7 +25,7 @@ func (MyServer *BaseServer) Application(My_DTO *DTO.ApplicationsDTO) error {
 		0,
 	}
 
-	err := MyServer.BaseDAO.Application(Application)
+	err := MyServer.BaseDAO.Application(Application, *My_DTO.ApplicationID)
 	if err != nil {
 		return err
 	}

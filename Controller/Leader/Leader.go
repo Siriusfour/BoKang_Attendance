@@ -6,11 +6,11 @@ import (
 )
 
 type LeaderController struct {
-	BaseController *Base.Base
+	BaseController *Base.BaseController
 	LeaderServer   *LeaderServer.LeaderServer
 }
 
-func NewLeader(base *Base.Base) *LeaderController {
+func NewLeader(base *Base.BaseController) *LeaderController {
 	return &LeaderController{
 		BaseController: base,
 		LeaderServer:   LeaderServer.New_Leader_Server(),

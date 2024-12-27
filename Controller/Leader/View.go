@@ -3,7 +3,7 @@ package Leader
 import (
 	"Attendance/Controller/Base"
 	"Attendance/Controller/DTO"
-	"fmt"
+	"Attendance/Utills"
 	"github.com/gin-gonic/gin"
 )
 
@@ -18,10 +18,11 @@ func (leader_controller *LeaderController) View(ctx *gin.Context) {
 	}
 
 	//从http绑定数据
-	err := leader_controller.BaseController.Build_request(Request_Message).GetErrors()
+	err := leader_controller.BaseController.Build_request(Request_Message)
 	if err != nil {
 		Base.ServerFail(ctx, Base.Response{
-			Message: fmt.Errorf("Binding data is Failed:%v", err).Error(),
+			Message: Utills.ErrIsBindingDataIsFailed.ErrorAppend(err).Error(),
+			Code:    Utills.ErrIsBindingDataIsFailed.Code,
 		})
 		return
 	}

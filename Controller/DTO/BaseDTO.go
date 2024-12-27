@@ -32,7 +32,7 @@ type LoginDTO struct {
 
 type ApplicationsDTO struct {
 	gorm.Model
-	ApplicationID uint      `json:"ApplicationID" binding:"required"`
+	ApplicationID *int      `json:"ApplicationID" binding:"required"` // 使其为指针，支持为 nil
 	Name          string    `json:"Name" binding:"required"`
 	UserID        int       `json:"UserID" binding:"required"`
 	Message       string    `json:"Message"`
@@ -40,6 +40,6 @@ type ApplicationsDTO struct {
 	EndTime       time.Time `json:"EndTime" binding:"required"`
 	Department    int       `json:"Department" binding:"required"`
 	Leave_type    int       `json:"Leave_type" binding:"required"`
-	AccessToken   string    `json:"AccessToken" binding:"required"` // 与 JSON 字段名一致
-	Status        int       `json:"Status" binding:"required"`
+	AccessToken   string    `json:"AccessToken" binding:"required"`
+	Status        *int      `json:"Status" binding:"required"` // 使其为指针，支持为 nil
 }

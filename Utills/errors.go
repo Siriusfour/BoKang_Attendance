@@ -17,24 +17,26 @@ const (
 	Access_Token_is_failed = "access token is failed"
 	Query_is_failed        = "query userinfo is failed"
 
-	AccessTokenIsInvalid = 1001
-	RefreshTokenIsValid  = 1002
-	PassWordIsInvalid    = 1003
-
+	//	登录失败  1xxx
+	BindingDataIsFailed    = 1000
+	AccessTokenIsInvalid   = 1001
+	RefreshTokenIsValid    = 1002
+	PassWordIsInvalid      = 1003
 	PassWordCryptoIsFailed = 1005
 	PassWordVerifyIsFailed = 1006
 
 	//数据库操作，2xxx
-
 	DB_operateIsFailed      = 2001
 	DB_UserPermissionDenied = 2002
 )
 
 var (
 	//登录失败
-	ErrIsATokenIsInvalid   = NewMyError("access_token is invalid", AccessTokenIsInvalid)
-	ErrIsRTokenIsInvalid   = NewMyError("refresh_token is invalid", RefreshTokenIsValid)
-	ErrIsPassWordIsInvalid = NewMyError("password is invalid", PassWordIsInvalid)
+	ErrIsATokenIsInvalid        = NewMyError("access_token is invalid", AccessTokenIsInvalid)
+	ErrIsRTokenIsInvalid        = NewMyError("refresh_token is invalid", RefreshTokenIsValid)
+	ErrIsPassWordIsInvalid      = NewMyError("password is invalid", PassWordIsInvalid)
+	ErrIsPassWordCryptoIsFailed = NewMyError("password crypto is invalid", PassWordCryptoIsFailed)
+	ErrIsBindingDataIsFailed    = NewMyError("binding data is failed", BindingDataIsFailed)
 
 	//数据库操作错误
 	ErrIsDBOperateIsFailed    = NewMyError("DB_Operate_Is_Failed", DB_operateIsFailed)
@@ -57,9 +59,9 @@ func (e *MyError) ErrorCode() int {
 }
 
 // 将err的错误描述添加到该自定义错误
-func (e *MyError) ErrorAppend(errMsg string) *MyError {
+func (e *MyError) ErrorAppend(err error) *MyError {
 	NewErr := *e
-	NewErr.Message = NewErr.Message + ": " + errMsg
+	NewErr.Message = NewErr.Message + ": " + err.Error()
 	return &NewErr
 }
 

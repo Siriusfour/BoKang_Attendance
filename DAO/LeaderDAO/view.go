@@ -16,13 +16,13 @@ func (leader_DAO *LeaderDAO) View(viewDTO *DTO.ViewDTO) *Utills.MyError {
 	//判断是否是leader，不是的话直接返回错误
 	err := leader_DAO.orm.Where("user_id=?", viewDTO.UseID).First(&view_user_info).Error
 	if err != nil {
-		return Utills.ErrIsDBOperateIsFailed.ErrorAppend(err.Error())
+		return Utills.ErrIsDBOperateIsFailed.ErrorAppend(err)
 	}
 
 	// 查询 该条记录的申请者的信息，获取到UserID
 	err = leader_DAO.orm.Where("id = ?", viewDTO.ApplicationsID).First(&Application_info).Error
 	if err != nil {
-		return Utills.ErrIsDBOperateIsFailed.ErrorAppend(err.Error())
+		return Utills.ErrIsDBOperateIsFailed.ErrorAppend(err)
 	}
 
 	// 由UserID查询申请者所在部门
@@ -42,7 +42,7 @@ func (leader_DAO *LeaderDAO) View(viewDTO *DTO.ViewDTO) *Utills.MyError {
 
 	err = leader_DAO.orm.Save(&Application_info).Error
 	if err != nil {
-		return Utills.ErrIsDBOperateIsFailed.ErrorAppend(err.Error())
+		return Utills.ErrIsDBOperateIsFailed.ErrorAppend(err)
 	}
 	return nil
 }

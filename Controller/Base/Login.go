@@ -10,7 +10,7 @@ import (
 // Login 1.把http的消息录入到对象My_Base中
 // 2.调用My_Base中的sever层对应的方法
 // 3.返回信息（页面，jwt）
-func (My_Base *Base) Login(ctx *gin.Context) {
+func (My_Base *BaseController) Login(ctx *gin.Context) {
 
 	//1.从ctx获取参数,并绑定到一个dto上
 	var loginDTO DTO.LoginDTO
@@ -20,7 +20,7 @@ func (My_Base *Base) Login(ctx *gin.Context) {
 		DTO: &loginDTO,
 	}
 
-	err := My_Base.Build_request(Request_Message).GetErrors()
+	err := My_Base.Build_request(Request_Message)
 	if err != nil {
 		ServerFail(ctx, Response{
 			Message: fmt.Errorf(Utills.Binding_Data_is_Failed, err).Error(),
@@ -48,7 +48,7 @@ func (My_Base *Base) Login(ctx *gin.Context) {
 	if err != nil {
 		Fail(ctx, Response{
 			Code:    Utills.ErrIsDBOperateIsFailed.ErrorCode(),
-			Message: Utills.ErrIsDBOperateIsFailed.ErrorAppend(err.Error()).Error(),
+			Message: Utills.ErrIsDBOperateIsFailed.ErrorAppend(err).Error(),
 		})
 
 		return
