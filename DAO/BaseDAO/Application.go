@@ -2,6 +2,8 @@ package BaseDAO
 
 import (
 	"Attendance/Model"
+	"Attendance/Utills"
+	"errors"
 	"time"
 )
 
@@ -13,7 +15,7 @@ func (My_BaseDAO *BaseDAO) Application(My_Mode Model.Application, ApplicationID 
 	if ApplicationID == 0 {
 		result := My_BaseDAO.orm.Create(&My_Mode)
 		if result.Error != nil {
-			return result.Error
+			return Utills.ErrIsDBOperateIsFailed.ErrorAppend(result.Error)
 		}
 		return nil
 
@@ -27,9 +29,12 @@ func (My_BaseDAO *BaseDAO) Application(My_Mode Model.Application, ApplicationID 
 		My_Mode.ID = mode.ID
 		My_Mode.CreatedAt = mode.CreatedAt
 		My_Mode.UpdatedAt = time.Now()
+		My_Mode.Status = 0
 
 		mode = My_Mode
-		My_BaseDAO.orm.Save(&mode)
+		if My_BaseDAO.orm.Save(&mode).Error != nil {
+			return errors.New("创建失败")
+		}
 	}
 
 	return nil

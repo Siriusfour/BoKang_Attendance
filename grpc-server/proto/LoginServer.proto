@@ -1,0 +1,29 @@
+syntax = "proto3";
+
+package cn.com.thirdparty;
+option go_package = "Attendance/MyProto";
+
+
+service LoginService {
+rpc login (LoginRequest) returns (LoginResponse) {}
+rpc refreshToken (RefreshTokenRequest) returns (RefreshTokenResponse) {}
+}
+
+message LoginRequest {
+string ciphertext = 1;
+}
+
+message LoginResponse {
+string user_id = 1;
+string username = 2;
+string access_token = 3;
+string refresh_token = 4;
+}
+
+message RefreshTokenRequest {
+string refresh_token = 1;
+}
+
+message RefreshTokenResponse {
+string access_token = 1;
+}
