@@ -29,11 +29,11 @@ func (My_Base *Base) Login(ctx *gin.Context) {
 	}
 
 	//判断token是否有效
-	TokenInfo, TokenErr := My_Base.IsTokenValid(TokenVerifyInfo{
-		UserID:        Request_Message.DTO.(DTO.LoginDTO).UserID,
-		Access_token:  Request_Message.DTO.(DTO.LoginDTO).Access_Token,
-		Refresh_token: Request_Message.DTO.(DTO.LoginDTO).Refresh_Token,
-		PassWord:      Request_Message.DTO.(DTO.LoginDTO).Password,
+	TokenInfo, TokenErr := IsTokenValid(TokenVerifyInfo{
+		UserID:       Request_Message.DTO.(*DTO.LoginDTO).UserID,
+		Accesstoken:  Request_Message.DTO.(*DTO.LoginDTO).AccessToken,
+		Refreshtoken: Request_Message.DTO.(*DTO.LoginDTO).RefreshToken,
+		PassWord:     Request_Message.DTO.(*DTO.LoginDTO).Password,
 	})
 	if TokenErr != nil {
 		ServerFail(ctx, Response{
@@ -47,8 +47,8 @@ func (My_Base *Base) Login(ctx *gin.Context) {
 	ApplicationArray, err := My_Base.Server.Login(Request_Message.DTO.(*DTO.LoginDTO))
 	if err != nil {
 		Fail(ctx, Response{
-			Code:    Utills.QueryIsFailed,
-			Message: fmt.Errorf(Utills.Query_is_failed, err).Error(),
+			Code:    Utills.ErrIsDBOperateIsFailed.ErrorCode(),
+			Message: Utills.ErrIsDBOperateIsFailed.ErrorAppend(err.Error()).Error(),
 		})
 
 		return

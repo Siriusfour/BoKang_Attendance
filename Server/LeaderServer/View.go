@@ -1,10 +1,13 @@
 package LeaderServer
 
-import "Attendance/Controller/DTO"
+import (
+	"Attendance/Controller/DTO"
+	"Attendance/Utills"
+)
 
-func (leader_server *LeaderServer) View(ViewDTO DTO.ViewDTO) error {
+func (leader_server *LeaderServer) View(ViewDTO *DTO.ViewDTO) *Utills.MyError {
 
-	err := leader_server.LeaderDAO.View(ViewDTO.ApplicationsID, ViewDTO.OK)
+	err := leader_server.LeaderDAO.View(ViewDTO)
 	if err != nil {
 		return err
 	}

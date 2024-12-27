@@ -11,13 +11,13 @@ func (MyServer *BaseServer) Application(My_DTO *DTO.ApplicationsDTO) error {
 
 	Application := Model.Application{
 		gorm.Model{
-			ID:        My_DTO.ID,
+			ID:        My_DTO.ApplicationID,
 			CreatedAt: time.Time{},
 			UpdatedAt: time.Time{},
 			DeletedAt: gorm.DeletedAt{},
 		},
 		My_DTO.Name,
-		My_DTO.UserId,
+		My_DTO.UserID,
 		My_DTO.Message,
 		My_DTO.StartTime,
 		My_DTO.EndTime,

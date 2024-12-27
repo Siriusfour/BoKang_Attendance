@@ -33,10 +33,10 @@ type BuildRequest struct {
 }
 
 type TokenVerifyInfo struct {
-	UserID        int
-	Access_token  string
-	Refresh_token string
-	PassWord      string
+	UserID       int
+	Accesstoken  string
+	Refreshtoken string
+	PassWord     string
 }
 
 func NewBase() *Base {
@@ -109,38 +109,38 @@ func parseErr(Errs error, tager interface{}) error {
 }
 
 // IsTokenValid 验证token
-func (My_Base *Base) IsTokenValid(tokenVerifyInfo TokenVerifyInfo) (TokenVerifyInfo, *Utills.MyError) {
+func IsTokenValid(tokenVerifyInfo TokenVerifyInfo) (TokenVerifyInfo, *Utills.MyError) {
 
-	redis_AccseeToken := strconv.Itoa(tokenVerifyInfo.UserID) + "_AccseeToken"
+	redis_AccseeToken := strconv.Itoa(tokenVerifyInfo.UserID) + "_AccessToken"
 	redis_RefreshToken := strconv.Itoa(tokenVerifyInfo.UserID) + "_RefreshToken"
 
 	LoginTokenInfo := TokenVerifyInfo{}
 	switch {
 
 	//http请求里只有Access_Token
-	case tokenVerifyInfo.Access_token != "":
+	case tokenVerifyInfo.Accesstoken != "":
 		{
 			ak, err := Global.RedisClient.Get(context.Background(), redis_AccseeToken).Result()
-			if err != nil || ak == "" || ak != tokenVerifyInfo.Access_token {
+			if err != nil || ak == "" || ak != tokenVerifyInfo.Accesstoken {
 
 				return LoginTokenInfo, Utills.ErrIsATokenIsInvalid
 			}
 		}
 
 	//http请求里只有Refresh_Token
-	case tokenVerifyInfo.Refresh_token != "":
+	case tokenVerifyInfo.Refreshtoken != "":
 		{
 			rk, err := Global.RedisClient.Get(context.Background(), redis_RefreshToken).Result()
-			if (err != nil || rk == "") || rk != tokenVerifyInfo.Refresh_token {
+			if (err != nil || rk == "") || rk != tokenVerifyInfo.Refreshtoken {
 				return LoginTokenInfo, Utills.ErrIsRTokenIsInvalid
 			}
 
 			ak, err := Global.Grpc_Client.RefreshToken(context.Background(), &MyProto.RefreshTokenRequest{RefreshToken: rk})
 
-			err = Global.RedisClient.Set(context.Background(), redis_AccseeToken, ak, time.Duration(viper.GetInt("key.Refresh_Token_OutTime"))*10080*60).Err()
+			err = Global.RedisClient.Set(context.Background(), redis_AccseeToken, ak, time.Duration(viper.GetInt("key.RefreshToken_OutTime"))*10080*60).Err()
 
 			//return LoginTokenInfo{Access_token: ak.AccessToken}, nil
-			LoginTokenInfo.Access_token = ak.AccessToken
+			LoginTokenInfo.Accesstoken = ak.AccessToken
 
 		}
 
@@ -174,8 +174,8 @@ func (My_Base *Base) IsTokenValid(tokenVerifyInfo TokenVerifyInfo) (TokenVerifyI
 				Global.RedisClient.Set(context.Background(), LoginResponse.UserId+"_AccseeToken", LoginResponse.AccessToken, time.Duration(viper.GetInt("key.Access_Token_OutTime")))
 				Global.RedisClient.Set(context.Background(), LoginResponse.UserId+"_RefreshToken", LoginResponse.AccessToken, time.Duration(viper.GetInt("key.Refresh_Token_OutTime")))
 
-				LoginTokenInfo.Access_token = LoginResponse.AccessToken
-				LoginTokenInfo.Refresh_token = LoginResponse.RefreshToken
+				LoginTokenInfo.Accesstoken = LoginResponse.AccessToken
+				LoginTokenInfo.Refreshtoken = LoginResponse.RefreshToken
 
 			} else {
 				return LoginTokenInfo, Utills.NewMyError(err.Error(), Utills.PassWordVerifyIsFailed)

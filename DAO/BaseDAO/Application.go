@@ -2,6 +2,7 @@ package BaseDAO
 
 import (
 	"Attendance/Model"
+	"time"
 )
 
 func (My_BaseDAO *BaseDAO) Application(My_Mode Model.Application) error {
@@ -10,7 +11,7 @@ func (My_BaseDAO *BaseDAO) Application(My_Mode Model.Application) error {
 
 	//若传入的id是0，则说明是新的申请
 	if My_Mode.ID == 0 {
-		result := My_BaseDAO.orm.Create(My_Mode)
+		result := My_BaseDAO.orm.Create(&My_Mode)
 		if result.Error != nil {
 			return result.Error
 		}
@@ -22,6 +23,11 @@ func (My_BaseDAO *BaseDAO) Application(My_Mode Model.Application) error {
 		if result.Error != nil {
 			return result.Error
 		}
+
+		My_Mode.ID = mode.ID
+		My_Mode.CreatedAt = mode.CreatedAt
+		My_Mode.UpdatedAt = time.Now()
+
 		mode = My_Mode
 		My_BaseDAO.orm.Save(&mode)
 	}

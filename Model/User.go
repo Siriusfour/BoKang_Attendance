@@ -7,7 +7,7 @@ type User struct {
 	Name         string `gorm:"type:varchar(20);not null"`
 	Sex          int    `gorm:"type:INT;not null"`
 	Password     string `gorm:"type:varchar(255);not null"`
-	departmental string `gorm:"type:varchar(255);not null"`
+	Departmental int    `gorm:"type:varchar(255);not null"`
 	Leader       int    `gorm:"type:int;not null"`
 }
 

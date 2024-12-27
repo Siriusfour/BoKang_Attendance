@@ -21,17 +21,14 @@ func (My_Base *Base) Application(ctx *gin.Context) {
 	}
 
 	err := My_Base.Build_request(Request_Message).GetErrors()
-
 	if err != nil {
 		return
 	}
 
-	//2.====
-	_, TokenErr := My_Base.IsTokenValid(
-		TokenVerifyInfo{
-			UserID:       Request_Message.DTO.(DTO.ApplicationsDTO).UserId,
-			Access_token: Request_Message.DTO.(DTO.ApplicationsDTO).AccessToken,
-		})
+	_, TokenErr := IsTokenValid(TokenVerifyInfo{
+		UserID:      Request_Message.DTO.(*DTO.ApplicationsDTO).UserID,
+		Accesstoken: Request_Message.DTO.(*DTO.ApplicationsDTO).AccessToken,
+	})
 	if TokenErr != nil {
 		Fail(My_Base.Ctx, Response{
 			Message: TokenErr.Error(),
